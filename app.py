@@ -2,9 +2,10 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import pandas as pd
 import time
+from datetime import datetime
 
 
 today = time.strftime("%Y-%m-%d")
@@ -52,16 +53,17 @@ app.config['suppress_callback_exceptions']=True
     [Input('lake', 'value')])
 def lakepowell_graph(lake):
     print(lake)
-    trace = [
-        go.Scatter(
+    traces = []
+    if lake == 'lp':
+        traces.append(go.Scatter(
             y = df_lp['Value'],
-            # x = df_lp['Date'],
-        ),
-    ],
+            x = df_lp.index,
+        ))
+    
     layout = go.Layout(
         height = 500
     )
-    return {'data': trace, 'layout': layout}
+    return {'data': traces, 'layout': layout}
 
 if __name__ == "__main__":
     app.run_server(port=8020, debug=False)
