@@ -10,13 +10,7 @@ from datetime import datetime
 
 today = time.strftime("%Y-%m-%d")
 
-df_powell = pd.read_csv('https://water.usbr.gov/api/web/app.php/api/series?sites=lakepowell&parameters=Day.Inst.ReservoirStorage.af&start=1850-01-01&end='+ today +'&format=csv', skiprows=4)
-df_powell['Date'] = pd.to_datetime(df_powell['Date'])
-df_powell.set_index(['Date'], inplace=True)
-print(df_powell)
-df_lp = df_powell.iloc[::-1]
-
-levels = df_lp['Value']
+# levels = df_lp['Value']
 
 def get_layout():
     return html.Div(
@@ -33,7 +27,7 @@ def get_layout():
                     dcc.Dropdown(
                         id='lake',
                         options=[
-                            {'label': 'Lake Powell', 'value': 'lp'}
+                            {'label': 'Lake Powell', 'value': 'lakepowell'}
                         ]
                     ),
                 ],
@@ -42,6 +36,7 @@ def get_layout():
             ],
                 className='row'
             ),
+            html.Div(id='selected-data', style={'display': 'none'}),
         ]
     )
 
@@ -50,17 +45,31 @@ app.layout = get_layout
 app.config['suppress_callback_exceptions']=True
 
 @app.callback(
-    Output('lake-levels', 'figure'),
+    Output('selected-data', 'children'),
     [Input('lake', 'value')])
-def lakepowell_graph(lake):
-    print(lake)
-    traces = []
-    if lake == 'lp':
-        traces.append(go.Scatter(
-            y = df_lp['Value'],
-            x = df_lp.index,
-        ))
+def clean_data(lake):
+    df = pd.read_csv('https://water.usbr.gov/api/web/app.php/api/series?sites='+ lake +'&parameters=Day.Inst.ReservoirStorage.af&start=1850-01-01&end='+ today +'&format=csv', skiprows=4)
+    df_reversed = df.iloc[::-1]
+    # print(df_reversed)
     
+    return df.to_json()
+
+@app.callback(
+    Output('lake-levels', 'figure'),
+    [Input('lake', 'value'),
+    Input('selected-data', 'children')])
+def lake_graph(lake, data):
+    data = pd.read_json(data)
+    print(data)
+    data['Date'] = pd.to_datetime(data['Date'])
+    data.set_index(['Date'], inplace=True)
+    print(data)
+    traces = []
+    
+    traces.append(go.Scatter(
+        y = data['Value'],
+        x = data.index,
+    )),
     layout = go.Layout(
         height = 500
     )
