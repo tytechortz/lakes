@@ -50,10 +50,17 @@ app.config['suppress_callback_exceptions']=True
     [Input('lake', 'value')])
 def clean_data(lake):
     df = pd.read_csv('https://water.usbr.gov/api/web/app.php/api/series?sites='+ lake +'&parameters=Day.Inst.ReservoirStorage.af&start=1850-01-01&end='+ today +'&format=csv', skiprows=4)
+    df.drop(['Site', 'Site ID'], axis=1)
     if lake == 'hdmlc':
         df['1090'] = 10857000
         df['1075'] = 9601000
-    
+        df['1050'] = 7683000
+        df['1045'] = 7326000
+        df['1040'] = 6978000
+        df['1035'] = 6638000
+        df['1030'] = 6305000
+        df['1025'] = 5981000
+
     return df.to_json()
 
 @app.callback(
@@ -67,21 +74,29 @@ def lake_graph(lake, data):
     data.set_index(['Date'], inplace=True)
     print(data)
     traces = []
-    
-    traces.append(go.Scatter(
-        y = data['Value'],
-        x = data.index,
-    )),
-    traces.append(go.Scatter(
-        y = data['1090'],
-        x = data.index,
-    )),
-    traces.append(go.Scatter(
-        y = data['1075'],
-        x = data.index,
-    )),
+
+    if lake == 'hdmlc':
+        for column in data.columns[3:]:
+            traces.append(go.Scatter(
+                y=data[column],
+                x=data.index,
+            ))
+    # traces.append(go.Scatter(
+    #     y = data['Value'],
+    #     x = data.index,
+    #     name='Water Level'
+    # )),
+    # traces.append(go.Scatter(
+    #     y = data['1090'],
+    #     x = data.index,
+    # )),
+    # traces.append(go.Scatter(
+    #     y = data['1075'],
+    #     x = data.index,
+    # )),
     layout = go.Layout(
-        height = 500
+        height = 500,
+        title = data['Site'][0]
     )
     return {'data': traces, 'layout': layout}
 
