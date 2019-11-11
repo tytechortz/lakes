@@ -27,7 +27,8 @@ def get_layout():
                     dcc.Dropdown(
                         id='lake',
                         options=[
-                            {'label': 'Lake Powell', 'value': 'lakepowell'}
+                            {'label': 'Lake Powell', 'value': 'lakepowell'},
+                            {'label': 'Lake Mead', 'value': 'hdmlc'},
                         ]
                     ),
                 ],
