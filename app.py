@@ -59,6 +59,8 @@ def clean_data(lake):
         df['1035'] = 6638000
         df['1030'] = 6305000
         df['1025'] = 5981000
+    elif lake == 'lakepowell':
+        df['power level'] = 6124000
 
     return df.to_json()
 
@@ -81,16 +83,17 @@ def lake_graph(lake, data):
                 x = data.index,
                 name = column
             ))
-    else:
+    elif lake == 'lakepowell':
         traces.append(go.Scatter(
             y = data['Value'],
             x = data.index,
             name='Water Level'
         )),
-    # traces.append(go.Scatter(
-    #     y = data['1090'],
-    #     x = data.index,
-    # )),
+        traces.append(go.Scatter(
+            y = data['power level'],
+            x = data.index,
+            name = 'Power level'
+        )),
     # traces.append(go.Scatter(
     #     y = data['1075'],
     #     x = data.index,
