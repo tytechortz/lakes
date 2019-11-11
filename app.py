@@ -50,7 +50,6 @@ app.config['suppress_callback_exceptions']=True
     [Input('lake', 'value')])
 def clean_data(lake):
     df = pd.read_csv('https://water.usbr.gov/api/web/app.php/api/series?sites='+ lake +'&parameters=Day.Inst.ReservoirStorage.af&start=1850-01-01&end='+ today +'&format=csv', skiprows=4)
-    df.drop(['Site', 'Site ID'], axis=1)
     if lake == 'hdmlc':
         df['1090'] = 10857000
         df['1075'] = 9601000
@@ -78,14 +77,16 @@ def lake_graph(lake, data):
     if lake == 'hdmlc':
         for column in data.columns[3:]:
             traces.append(go.Scatter(
-                y=data[column],
-                x=data.index,
+                y = data[column],
+                x = data.index,
+                name = column
             ))
-    # traces.append(go.Scatter(
-    #     y = data['Value'],
-    #     x = data.index,
-    #     name='Water Level'
-    # )),
+    else:
+        traces.append(go.Scatter(
+            y = data['Value'],
+            x = data.index,
+            name='Water Level'
+        )),
     # traces.append(go.Scatter(
     #     y = data['1090'],
     #     x = data.index,
