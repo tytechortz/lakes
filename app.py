@@ -15,14 +15,9 @@ df_powell['Date'] = pd.to_datetime(df_powell['Date'])
 df_powell.set_index(['Date'], inplace=True)
 print(df_powell)
 df_lp = df_powell.iloc[::-1]
-print(df_lp)
-# df_lp['Date'] = pd.to_datetime(df_lp['Date'])
 
-# print(df_lp)
 levels = df_lp['Value']
-# print(levels)
-# print(df_lp.iloc[1000,3])
-# print(df_lp['Value'])
+
 def get_layout():
     return html.Div(
         [
@@ -34,13 +29,19 @@ def get_layout():
                 className='row'
             ),
             html.Div([
-                dcc.Dropdown(
-                    id='lake',
-                    options=[
-                        {'label': 'Lake Powell', 'value': 'lp'}
-                    ]
-                )
-            ])
+                html.Div([
+                    dcc.Dropdown(
+                        id='lake',
+                        options=[
+                            {'label': 'Lake Powell', 'value': 'lp'}
+                        ]
+                    ),
+                ],
+                    className='three columns'
+                ), 
+            ],
+                className='row'
+            ),
         ]
     )
 
