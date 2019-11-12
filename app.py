@@ -10,14 +10,29 @@ from datetime import datetime
 
 today = time.strftime("%Y-%m-%d")
 
+capacities = {'LAKE POWELL': 24322000, 'Lake Mead': 26134000, 'FLAMING GORGE RESERVOIR': 3788700, 'NAVAJO RESERVOIR': 1708600, 'BLUE MESA RESERVOIR': 940800 }
+
 # levels = df_lp['Value']
 
 def get_layout():
     return html.Div(
         [
             html.Div([
-                dcc.Graph(
-                    id='lake-levels',
+                html.Div([
+                    dcc.Graph(
+                        id='lake-levels',
+                    ),
+                ],
+                    className='nine columns'
+                ),
+                html.Div([
+                    html.Div([
+                        html.Div(id='stats') 
+                    ],
+                        className='round1'
+                    ),
+                ],
+                    className='three columns'
                 )
             ],
                 className='row'
@@ -27,9 +42,13 @@ def get_layout():
                     dcc.Dropdown(
                         id='lake',
                         options=[
-                            {'label': 'Lake Powell', 'value': 'lakepowell'},
-                            {'label': 'Lake Mead', 'value': 'hdmlc'},
-                        ]
+                            {'label': 'Powell', 'value': 'lakepowell'},
+                            {'label': 'Mead', 'value': 'hdmlc'},
+                            {'label': 'Flaming Gorge', 'value': 'flaminggorge'},
+                            {'label': 'Navajo', 'value': 'navajo'},
+                            {'label': 'Blue Mesa', 'value': 'bluemesa'},
+                        ],
+                        value='lakepowell'
                     ),
                 ],
                     className='three columns'
@@ -65,15 +84,38 @@ def clean_data(lake):
     return df.to_json()
 
 @app.callback(
+    Output('stats', 'children'),
+    [Input('lake', 'value'),
+    Input('selected-data', 'children')])
+def produce_stats(lake, data):
+    data = pd.read_json(data)
+    data['Date'] = pd.to_datetime(data['Date'])
+    data.set_index(['Date'], inplace=True)
+    fill_pct = data.iloc[0,3] / capacities[data['Site'][0]]
+    print(data)
+    print(data.iloc[0,3])
+    print(data['Value'][1])
+    print(capacities[data['Site'][0]])
+    print(fill_pct)
+    return html.Div([
+            html.Div('Current Volume', style={'text-align':'center'}),
+            html.Div('{:,.0f}'.format(data.iloc[0,3]), style={'text-align':'center'}),
+            html.Div('Percent Full', style={'text-align':'center'}),
+            html.Div('{0:.0%}'.format(fill_pct), style={'text-align':'center'}),
+    ],
+        className='round1'
+    ),
+
+@app.callback(
     Output('lake-levels', 'figure'),
     [Input('lake', 'value'),
     Input('selected-data', 'children')])
 def lake_graph(lake, data):
     data = pd.read_json(data)
-    print(data)
+    # print(data)
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index(['Date'], inplace=True)
-    print(data)
+    # print(data)
     traces = []
 
     if lake == 'hdmlc':
@@ -94,10 +136,13 @@ def lake_graph(lake, data):
             x = data.index,
             name = 'Power level'
         )),
-    # traces.append(go.Scatter(
-    #     y = data['1075'],
-    #     x = data.index,
-    # )),
+    else:
+        traces.append(go.Scatter(
+            y = data['Value'],
+            x = data.index,
+            name='Water Level'
+        )),
+
     layout = go.Layout(
         height = 500,
         title = data['Site'][0]
