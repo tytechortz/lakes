@@ -36,17 +36,22 @@ def get_layout():
                     ],
                         className='round1'
                     ),
+                    html.Div([
+                        dcc.RadioItems(
+                            id='period',
+                            options=[
+                                {'label':'D', 'value':'1'},
+                                {'label':'W', 'value':'7'},
+                                {'label':'Y', 'value':'365'},
+                            ],
+                            labelStyle={'display': 'inline'},
+                            ), 
+                    ],
+                        className='round1'
+                    ),
                 ],
                     className='three columns'
                 ),
-            #     html.Div([
-            #         html.Div([
-            #             html.Div(id='changes') 
-            #         ],
-            #             className='round1'
-            #         ),
-            #     ],
-            #     ),
             ],
                 className='row'
             ),
@@ -66,6 +71,17 @@ def get_layout():
                 ],
                     className='three columns'
                 ), 
+            ],
+                className='row'
+            ),
+            html.Div([
+                html.Div([
+                    html.Div(
+                        id='rankings'
+                    ), 
+                ],
+                    className='twelve columns'
+                ),
             ],
                 className='row'
             ),
@@ -98,24 +114,102 @@ def clean_data(lake):
 
     return df.to_json()
 
-# @app.callback(
-#     Output('changes', 'children'),
-#     [Input('lake', 'value'),
-#     Input('selected-data', 'children')])
-# def produce_changes(lake, data):
-#     data = pd.read_json(data)
-#     data['Date'] = pd.to_datetime(data['Date'])
-#     data.set_index(['Date'], inplace=True)
-#     fill_pct = data.iloc[0,3] / capacities[data['Site'][0]]
+
+@app.callback(
+    Output('annual-max-table', 'children'),
+    [Input('selected-data', 'children')])
+def record_water_table(data, max_rows=10):
+    data = pd.read_json(data)
+    data['Date'] = pd.to_datetime(data['Date'])
+    data.set_index(['Date'], inplace=True)
+    print(data)
+    annual_max_all = data.resample('Y').max()
+    print(annual_max_all)
+    annual_max_twok = annual_max_all[(annual_max_all.index.year > 1999)]
+    print(annual_max_twok)
+    sorted_annual_max_all = annual_max_twok.sort_values(by='Value', axis=0, ascending=True)
+    print(sorted_annual_max_all)
+    print(sorted_annual_max_all.index[0].year)
+    # sama = pd.DataFrame({'Value':sorted_annual_max_all.values,'YEAR':sorted_annual_max_all.index.year})
+    # sama = sama.round(0)
+    # print(sama)
+    return html.Div([
+                html.Div('Annual Max', style={'text-align': 'center'}),
+                html.Div([
+                    html.Div([
+                        html.Div([
+                            html.Div('{}'.format(sorted_annual_max_all.index[y].year), style={'text-align': 'center'}) for y in range(len(sorted_annual_max_all))
+                        ],
+                            className='four columns'
+                        ),
+                        html.Div([
+                            html.Div('{:,.0f}'.format(sorted_annual_max_all.iloc[y,3]), style={'text-align': 'center'}) for y in range(len(sorted_annual_max_all))
+                        ],
+                            className='eight columns'
+                        ),  
+                    ],
+                        className='row'
+                    ),
+                ],
+                    className='round1'
+                ),      
+            ],
+                className='round1'
+            )
+
+@app.callback(
+    Output('rankings', 'children'),
+    [Input('selected-data', 'children')])
+def display_stats(value):
+    # print(value)
+    return html.Div([
+            html.Div([
+                html.Div([
+                    html.Div(id='annual-max-table')
+                ],
+                    className='two columns'
+                ),
+                html.Div([
+                    html.Div(id='annual-min-table')
+                ],
+                    className='two columns'
+                ),
+                html.Div([
+                    html.Div(id='annual-rankings')
+                ],
+                    className='two columns'
+                ),
+            ])
+    ],
+        className='twelve columns'
+    ),
+
+@app.callback(
+    Output('changes', 'children'),
+    [Input('lake', 'value'),
+    Input('period', 'value'),
+    Input('selected-data', 'children')])
+def produce_changes(lake, period, data):
+    data = pd.read_json(data)
+    data['Date'] = pd.to_datetime(data['Date'])
+    data.set_index(['Date'], inplace=True)
+    # print(period)
+    # print(data)
+    # print(data.iloc[int(period),3])
+    # print(data.iloc[0,3])
+    
+    change = data.iloc[0,3] - data.iloc[int(period),3] 
+    # print(change)
+    
    
-#     return html.Div([
-#                 html.Div('Current Volume', style={'text-align':'center'}),
-#                 html.Div('{:,.0f}'.format(data.iloc[0,3]), style={'text-align':'center'}),
-#                 html.Div('Percent Full', style={'text-align':'center'}),
-#                 html.Div('{0:.0%}'.format(fill_pct), style={'text-align':'center'}),
-#             ],
-#                 className='round1'
-#             ),
+    return html.Div([
+                html.Div('Change', style={'text-align':'center'}),
+                html.Div('{:,.0f}'.format(change), style={'text-align':'center'}),
+                html.Div('Percent Full', style={'text-align':'center'}),
+                # html.Div('{0:.0%}'.format(fill_pct), style={'text-align':'center'}),
+            ],
+                className='round1'
+            ),
 
 @app.callback(
     [Output('current-volume', 'children'),
@@ -124,7 +218,7 @@ def clean_data(lake):
     Input('selected-data', 'children')])
 def get_current_volume(lake, data):
     data = pd.read_json(data)
-    print(data)
+    # print(data)
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index(['Date'], inplace=True)
     site = data.iloc[0, 0]
@@ -141,8 +235,8 @@ def get_current_volume(lake, data):
     Input('site', 'children'),
     Input('current-volume', 'children')])
 def produce_stats(lake, site, data):
-    print(data)
-    print(site)
+    # print(data)
+    # print(site)
     # data['Date'] = pd.to_datetime(data['Date'])
     # data.set_index(['Date'], inplace=True)
 
