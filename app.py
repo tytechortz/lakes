@@ -97,6 +97,25 @@ def clean_data(lake):
     return df.to_json()
 
 @app.callback(
+    Output('changes', 'children'),
+    [Input('lake', 'value'),
+    Input('selected-data', 'children')])
+def produce_changes(lake, data):
+    data = pd.read_json(data)
+    data['Date'] = pd.to_datetime(data['Date'])
+    data.set_index(['Date'], inplace=True)
+    fill_pct = data.iloc[0,3] / capacities[data['Site'][0]]
+   
+    return html.Div([
+                html.Div('Current Volume', style={'text-align':'center'}),
+                html.Div('{:,.0f}'.format(data.iloc[0,3]), style={'text-align':'center'}),
+                html.Div('Percent Full', style={'text-align':'center'}),
+                html.Div('{0:.0%}'.format(fill_pct), style={'text-align':'center'}),
+            ],
+                className='round1'
+            ),
+
+@app.callback(
     Output('stats', 'children'),
     [Input('lake', 'value'),
     Input('selected-data', 'children')])
