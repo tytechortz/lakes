@@ -144,10 +144,9 @@ def produce_stats(lake, data):
     Input('selected-data', 'children')])
 def lake_graph(lake, data):
     data = pd.read_json(data)
-    # print(data)
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index(['Date'], inplace=True)
-    # print(data)
+  
     traces = []
 
     if lake == 'hdmlc':
