@@ -123,15 +123,23 @@ def produce_stats(lake, data):
     data = pd.read_json(data)
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index(['Date'], inplace=True)
-    fill_pct = data.iloc[0,3] / capacities[data['Site'][0]]
+
+    if data.iloc[0,3] == 0:
+        current_volume = data.iloc[1,3]
+        # fill_pct = data.iloc[1,3] / capacities[data['Site'][0]]
+    else:
+        current_volume = data.iloc[0,3]
+        # fill_pct = data.iloc[0,3] / capacities[data['Site'][0]]
+    fill_pct = current_volume / capacities[data['Site'][0]]
+    
     print(data)
     print(data.iloc[0,3])
-    print(data['Value'][1])
+    print(data.iloc[1,3])
     print(capacities[data['Site'][0]])
     print(fill_pct)
     return html.Div([
                 html.Div('Current Volume', style={'text-align':'center'}),
-                html.Div('{:,.0f}'.format(data.iloc[0,3]), style={'text-align':'center'}),
+                html.Div('{:,.0f}'.format(current_volume), style={'text-align':'center'}),
                 html.Div('Percent Full', style={'text-align':'center'}),
                 html.Div('{0:.0%}'.format(fill_pct), style={'text-align':'center'}),
             ],
