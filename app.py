@@ -31,9 +31,22 @@ def get_layout():
                     ],
                         className='round1'
                     ),
+                    html.Div([
+                        html.Div(id='changes') 
+                    ],
+                        className='round1'
+                    ),
                 ],
                     className='three columns'
-                )
+                ),
+            #     html.Div([
+            #         html.Div([
+            #             html.Div(id='changes') 
+            #         ],
+            #             className='round1'
+            #         ),
+            #     ],
+            #     ),
             ],
                 className='row'
             ),
@@ -98,13 +111,13 @@ def produce_stats(lake, data):
     print(capacities[data['Site'][0]])
     print(fill_pct)
     return html.Div([
-            html.Div('Current Volume', style={'text-align':'center'}),
-            html.Div('{:,.0f}'.format(data.iloc[0,3]), style={'text-align':'center'}),
-            html.Div('Percent Full', style={'text-align':'center'}),
-            html.Div('{0:.0%}'.format(fill_pct), style={'text-align':'center'}),
-    ],
-        className='round1'
-    ),
+                html.Div('Current Volume', style={'text-align':'center'}),
+                html.Div('{:,.0f}'.format(data.iloc[0,3]), style={'text-align':'center'}),
+                html.Div('Percent Full', style={'text-align':'center'}),
+                html.Div('{0:.0%}'.format(fill_pct), style={'text-align':'center'}),
+            ],
+                className='round1'
+            ),
 
 @app.callback(
     Output('lake-levels', 'figure'),
