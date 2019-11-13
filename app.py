@@ -96,6 +96,7 @@ def get_layout():
             html.Div(id='selected-data', style={'display': 'none'}),
             html.Div(id='current-volume', style={'display': 'none'}),
             html.Div(id='site', style={'display': 'none'}),
+            html.Div(id='cvd', style={'display': 'none'}),
         ]
     )
 
@@ -250,7 +251,8 @@ def produce_changes(lake, period, data):
 
 @app.callback(
     [Output('current-volume', 'children'),
-    Output('site', 'children')],
+    Output('site', 'children'),
+    Output('cvd', 'children')],
     [Input('lake', 'value'),
     Input('selected-data', 'children')])
 def get_current_volume(lake, data):
@@ -263,22 +265,29 @@ def get_current_volume(lake, data):
     # print(data.iloc[1,3])
     if data.iloc[0,3] == 0:
         current_volume = data.iloc[1,3]
+        current_volume_date = data.index[1]
     else:
         current_volume = data.iloc[0,3]
-    # print(current_volume)
+        current_volume_date = data.index[0]
+    cvd = str(current_volume_date)
+    print(type(cvd))
 
-    return current_volume, site
+    return current_volume, site, cvd
 
 @app.callback(
     Output('stats', 'children'),
     [Input('lake', 'value'),
     Input('site', 'children'),
-    Input('current-volume', 'children')])
-def produce_stats(lake, site, data):
+    Input('current-volume', 'children'),
+    Input('cvd', 'children')])
+def produce_stats(lake, site, data, date ):
     fill_pct = data / capacities[site]
+    date = date[0:11]
+    print(date)
+    print(data)
     
     return html.Div([
-                html.Div('Current Volume', style={'text-align':'center'}),
+                html.Div('{} Volume'.format(date), style={'text-align':'center'}),
                 html.Div('{:,.0f}'.format(data), style={'text-align':'center'}),
                 html.Div('Percent Full', style={'text-align':'center'}),
                 html.Div('{0:.0%}'.format(fill_pct), style={'text-align':'center'}),
