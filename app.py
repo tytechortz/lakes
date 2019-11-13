@@ -83,6 +83,26 @@ def get_layout():
                 className='row'
             ),
             html.Div([
+                html.P(
+                    '',
+                    className='twelve columns',
+                    style={'text-align': 'center'}
+                ),
+            ],
+                className='row'
+            ),
+            html.Div([
+                html.Div([
+                    dcc.Graph(
+                        id='annual-bars',
+                    ),
+                ],
+                    className='nine columns'
+                ),
+            ],
+                className='row'
+            ),
+            html.Div([
                 html.Div([
                     html.Div(
                         id='rankings'
@@ -97,6 +117,9 @@ def get_layout():
             html.Div(id='current-volume', style={'display': 'none'}),
             html.Div(id='site', style={'display': 'none'}),
             html.Div(id='cvd', style={'display': 'none'}),
+            html.Div(id='sorted-year-end', style={'display': 'none'}),
+            html.Div(id='sorted-annual-max-all', style={'display': 'none'}),
+            html.Div(id='sorted-annual-min-all', style={'display': 'none'}),
         ]
     )
 
@@ -121,22 +144,22 @@ def clean_data(lake):
     elif lake == 'lakepowell':
         df['power level'] = 6124000
     chopped_df = df[df.Value != 0]
-    print(chopped_df)
+    # print(chopped_df)
 
     return chopped_df.to_json()
 
 
 @app.callback(
     Output('annual-max-table', 'children'),
-    [Input('selected-data', 'children')])
+    [Input('sorted-annual-max-all', 'children')])
 def record_water_table(data):
     data = pd.read_json(data)
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index(['Date'], inplace=True)
 
-    annual_max_all = data.resample('Y').max()
-    annual_max_twok = annual_max_all[(annual_max_all.index.year > 1999)]
-    sorted_annual_max_all = annual_max_twok.sort_values(by='Value', axis=0, ascending=True)
+    # annual_max_all = data.resample('Y').max()
+    # annual_max_twok = annual_max_all[(annual_max_all.index.year > 1999)]
+    # sorted_annual_max_all = annual_max_twok.sort_values(by='Value', axis=0, ascending=True)
    
     return html.Div([
                 html.Div('Annual Max', style={'text-align': 'center'}),
@@ -164,15 +187,16 @@ def record_water_table(data):
 
 @app.callback(
     Output('annual-min-table', 'children'),
-    [Input('selected-data', 'children')])
+    [Input('sorted-annual-min-all', 'children')])
 def record_water_table(data):
     data = pd.read_json(data)
+    # print(data)
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index(['Date'], inplace=True)
 
-    annual_min_all = data.resample('Y').min()
-    annual_min_twok = annual_min_all[(annual_min_all.index.year > 1999)]
-    sorted_annual_min_all = annual_min_twok.sort_values(by='Value', axis=0, ascending=True)
+    # annual_min_all = data.resample('Y').min()
+    # annual_min_twok = annual_min_all[(annual_min_all.index.year > 1999)]
+    # sorted_annual_min_all = annual_min_twok.sort_values(by='Value', axis=0, ascending=True)
    
     return html.Div([
                 html.Div('Annual Min', style={'text-align': 'center'}),
@@ -199,15 +223,38 @@ def record_water_table(data):
             )
 
 @app.callback(
-    Output('year-end-table', 'children'),
+    [Output('sorted-year-end', 'children'),
+    Output('sorted-annual-max', 'children'),
+    Output('sorted-annual-min', 'children')],
     [Input('selected-data', 'children')])
-def year_end_table(data):
+def data_factory(data):
     data = pd.read_json(data)
+    # print(data)
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index(['Date'], inplace=True)
     data_twok = data[(data.index.year > 1999)]
+    # print(data_twok)
     year_end = data_twok[(data_twok.index.month == 12) & (data_twok.index.day == 31)]
-    sorted_year_end = year_end.sort_values(by='Value', axis=0, ascending=False)
+    # sorted_year_end = year_end.sort_values(by='Value', axis=0, ascending=False)
+
+    annual_max_all = data.resample('Y').max()
+    annual_max_twok = annual_max_all[(annual_max_all.index.year > 1999)]
+    # sorted_annual_max = annual_max_twok.sort_values(by='Value', axis=0, ascending=True)
+
+    annual_min_all = data.resample('Y').min()
+    annual_min_twok = annual_min_all[(annual_min_all.index.year > 1999)]
+    # sorted_annual_min = annual_min_twok.sort_values(by='Value', axis=0, ascending=True)
+
+    return year_end.to_json(), annual_max_twok.to_json(), annual_min_twok.to_json()
+
+@app.callback(
+    Output('year-end-table', 'children'),
+    [Input('sorted-year-end', 'children')])
+def year_end_table(data):
+    data = pd.read_json(data)
+    print(data)
+    print(data.index[0].year)
+    sorted_year_end = data.sort_values(by='Value', axis=0, ascending=False)
    
     return html.Div([
                 html.Div('Year End', style={'text-align': 'center'}),
@@ -323,8 +370,8 @@ def get_current_volume(lake, data):
 def produce_stats(lake, site, data, date ):
     fill_pct = data / capacities[site]
     date = date[0:11]
-    print(date)
-    print(data)
+    # print(date)
+    # print(data)
     
     return html.Div([
                 html.Div('{} Volume'.format(date), style={'text-align':'center'}),
