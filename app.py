@@ -205,28 +205,21 @@ def year_end_table(data):
     data = pd.read_json(data)
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index(['Date'], inplace=True)
-
     data_twok = data[(data.index.year > 1999)]
-    print(data_twok)
     year_end = data_twok[(data_twok.index.month == 12) & (data_twok.index.day == 31)]
-    print(year_end)
     sorted_year_end = year_end.sort_values(by='Value', axis=0, ascending=False)
-    print(sorted_year_end)
-    # annual_min_all = data.resample('Y').min()
-    # annual_min_twok = annual_min_all[(annual_min_all.index.year > 1999)]
-    # sorted_annual_min_all = annual_min_twok.sort_values(by='Value', axis=0, ascending=True)
    
     return html.Div([
                 html.Div('Year End', style={'text-align': 'center'}),
                 html.Div([
                     html.Div([
                         html.Div([
-                            html.Div('{}'.format(sorted_annual_min_all.index[y].year), style={'text-align': 'center'}) for y in range(len(sorted_annual_min_all))
+                            html.Div('{}'.format(sorted_year_end.index[y].year), style={'text-align': 'center'}) for y in range(len(sorted_year_end))
                         ],
                             className='four columns'
                         ),
                         html.Div([
-                            html.Div('{:,.0f}'.format(sorted_annual_min_all.iloc[y,3]), style={'text-align': 'center'}) for y in range(len(sorted_annual_min_all))
+                            html.Div('{:,.0f}'.format(sorted_year_end.iloc[y,3]), style={'text-align': 'center'}) for y in range(len(sorted_year_end))
                         ],
                             className='eight columns'
                         ),  
