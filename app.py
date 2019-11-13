@@ -324,7 +324,8 @@ def lake_graph(lake, data):
 
     layout = go.Layout(
         height = 500,
-        title = data['Site'][0]
+        title = data['Site'][0],
+        yaxis = {'title':'Volume (AF)'},
     )
     return {'data': traces, 'layout': layout}
 
