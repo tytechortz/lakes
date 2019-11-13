@@ -206,8 +206,12 @@ def year_end_table(data):
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index(['Date'], inplace=True)
 
-    year_end = data[(data.index.month == 12) & (data.index.day == 31)]
+    data_twok = data[(data.index.year > 1999)]
+    print(data_twok)
+    year_end = data_twok[(data_twok.index.month == 12) & (data_twok.index.day == 31)]
     print(year_end)
+    sorted_year_end = year_end.sort_values(by='Value', axis=0, ascending=False)
+    print(sorted_year_end)
     # annual_min_all = data.resample('Y').min()
     # annual_min_twok = annual_min_all[(annual_min_all.index.year > 1999)]
     # sorted_annual_min_all = annual_min_twok.sort_values(by='Value', axis=0, ascending=True)
