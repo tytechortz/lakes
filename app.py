@@ -12,11 +12,18 @@ today = time.strftime("%Y-%m-%d")
 
 capacities = {'LAKE POWELL': 24322000, 'Lake Mead': 26134000, 'FLAMING GORGE RESERVOIR': 3788700, 'NAVAJO RESERVOIR': 1708600, 'BLUE MESA RESERVOIR': 940800 }
 
-# levels = df_lp['Value']
-
 def get_layout():
     return html.Div(
         [
+            html.Div([
+                html.H2(
+                    'Colorado River Reservoir Levels',
+                    className='twelve columns',
+                    style={'text-align': 'center'}
+                ),
+            ],
+                className='row'
+            ),
             html.Div([
                 html.Div([
                     dcc.Graph(
@@ -223,19 +230,10 @@ def produce_changes(lake, period, data):
     data.set_index(['Date'], inplace=True)
     current_data = data.iloc[0,3]
     past_data = data.iloc[int(period),3]
-    # if data.iloc[0,3] == 0:
-    #     current_data = data.iloc[1,3]
-    #     past_data = data.iloc[int(period)+1,3]
-    # else:
-    #     current_data == data.iloc[0,3]
-    #     past_data = data.iloc[int(period),3]
-    # print(current_data)
-    # print(past_data)
     change = current_data - past_data
     annual_min = data.resample('Y').min()
     annual_min_twok = annual_min[(annual_min.index.year > 1999)]
     rec_low = annual_min_twok['Value'].min()
-    # print(rec_low)
     dif_rl = data.iloc[0,3] - rec_low
  
 
@@ -277,22 +275,8 @@ def get_current_volume(lake, data):
     Input('site', 'children'),
     Input('current-volume', 'children')])
 def produce_stats(lake, site, data):
-    # print(data)
-    # print(site)
-    # data['Date'] = pd.to_datetime(data['Date'])
-    # data.set_index(['Date'], inplace=True)
-
-    # if data.iloc[0,3] == 0:
-    #     current_volume = data.iloc[1,3]
-    # else:
-    #     current_volume = data.iloc[0,3]
     fill_pct = data / capacities[site]
     
-    # print(data)
-    # print(data.iloc[0,3])
-    # print(data.iloc[1,3])
-    # print(capacities[data['Site'][0]])
-    # print(fill_pct)
     return html.Div([
                 html.Div('Current Volume', style={'text-align':'center'}),
                 html.Div('{:,.0f}'.format(data), style={'text-align':'center'}),
