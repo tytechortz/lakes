@@ -112,8 +112,10 @@ def clean_data(lake):
         df['1025'] = 5981000
     elif lake == 'lakepowell':
         df['power level'] = 6124000
+    chopped_df = df[df.Value != 0]
+    print(chopped_df)
 
-    return df.to_json()
+    return chopped_df.to_json()
 
 
 @app.callback(
@@ -219,11 +221,21 @@ def produce_changes(lake, period, data):
     data = pd.read_json(data)
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index(['Date'], inplace=True)
-    change = data.iloc[0,3] - data.iloc[int(period),3] 
+    current_data = data.iloc[0,3]
+    past_data = data.iloc[int(period),3]
+    # if data.iloc[0,3] == 0:
+    #     current_data = data.iloc[1,3]
+    #     past_data = data.iloc[int(period)+1,3]
+    # else:
+    #     current_data == data.iloc[0,3]
+    #     past_data = data.iloc[int(period),3]
+    # print(current_data)
+    # print(past_data)
+    change = current_data - past_data
     annual_min = data.resample('Y').min()
     annual_min_twok = annual_min[(annual_min.index.year > 1999)]
     rec_low = annual_min_twok['Value'].min()
-    print(rec_low)
+    # print(rec_low)
     dif_rl = data.iloc[0,3] - rec_low
  
 
@@ -249,11 +261,14 @@ def get_current_volume(lake, data):
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index(['Date'], inplace=True)
     site = data.iloc[0, 0]
+    # print(data.iloc[0,3])
+    # print(data.iloc[1,3])
     if data.iloc[0,3] == 0:
         current_volume = data.iloc[1,3]
     else:
         current_volume = data.iloc[0,3]
-        
+    # print(current_volume)
+
     return current_volume, site
 
 @app.callback(
