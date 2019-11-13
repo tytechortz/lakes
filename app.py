@@ -118,8 +118,8 @@ def get_layout():
             html.Div(id='site', style={'display': 'none'}),
             html.Div(id='cvd', style={'display': 'none'}),
             html.Div(id='sorted-year-end', style={'display': 'none'}),
-            html.Div(id='sorted-annual-max-all', style={'display': 'none'}),
-            html.Div(id='sorted-annual-min-all', style={'display': 'none'}),
+            html.Div(id='annual-max', style={'display': 'none'}),
+            html.Div(id='annual-min', style={'display': 'none'}),
         ]
     )
 
@@ -151,15 +151,10 @@ def clean_data(lake):
 
 @app.callback(
     Output('annual-max-table', 'children'),
-    [Input('sorted-annual-max-all', 'children')])
+    [Input('annual-max', 'children')])
 def record_water_table(data):
     data = pd.read_json(data)
-    data['Date'] = pd.to_datetime(data['Date'])
-    data.set_index(['Date'], inplace=True)
-
-    # annual_max_all = data.resample('Y').max()
-    # annual_max_twok = annual_max_all[(annual_max_all.index.year > 1999)]
-    # sorted_annual_max_all = annual_max_twok.sort_values(by='Value', axis=0, ascending=True)
+    sorted_annual_max_all = data.sort_values(by='Value', axis=0, ascending=True)
    
     return html.Div([
                 html.Div('Annual Max', style={'text-align': 'center'}),
@@ -187,16 +182,11 @@ def record_water_table(data):
 
 @app.callback(
     Output('annual-min-table', 'children'),
-    [Input('sorted-annual-min-all', 'children')])
+    [Input('annual-min', 'children')])
 def record_water_table(data):
     data = pd.read_json(data)
     # print(data)
-    data['Date'] = pd.to_datetime(data['Date'])
-    data.set_index(['Date'], inplace=True)
-
-    # annual_min_all = data.resample('Y').min()
-    # annual_min_twok = annual_min_all[(annual_min_all.index.year > 1999)]
-    # sorted_annual_min_all = annual_min_twok.sort_values(by='Value', axis=0, ascending=True)
+    sorted_annual_min_all = data.sort_values(by='Value', axis=0, ascending=True)
    
     return html.Div([
                 html.Div('Annual Min', style={'text-align': 'center'}),
@@ -224,8 +214,8 @@ def record_water_table(data):
 
 @app.callback(
     [Output('sorted-year-end', 'children'),
-    Output('sorted-annual-max', 'children'),
-    Output('sorted-annual-min', 'children')],
+    Output('annual-max', 'children'),
+    Output('annual-min', 'children')],
     [Input('selected-data', 'children')])
 def data_factory(data):
     data = pd.read_json(data)
@@ -252,8 +242,8 @@ def data_factory(data):
     [Input('sorted-year-end', 'children')])
 def year_end_table(data):
     data = pd.read_json(data)
-    print(data)
-    print(data.index[0].year)
+    # print(data)
+    # print(data.index[0].year)
     sorted_year_end = data.sort_values(by='Value', axis=0, ascending=False)
    
     return html.Div([
