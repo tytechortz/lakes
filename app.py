@@ -199,6 +199,44 @@ def record_water_table(data):
             )
 
 @app.callback(
+    Output('year-end-table', 'children'),
+    [Input('selected-data', 'children')])
+def year_end_table(data):
+    data = pd.read_json(data)
+    data['Date'] = pd.to_datetime(data['Date'])
+    data.set_index(['Date'], inplace=True)
+
+    year_end = data[(data.index.month == 12) & (data.index.day == 31)]
+    print(year_end)
+    # annual_min_all = data.resample('Y').min()
+    # annual_min_twok = annual_min_all[(annual_min_all.index.year > 1999)]
+    # sorted_annual_min_all = annual_min_twok.sort_values(by='Value', axis=0, ascending=True)
+   
+    return html.Div([
+                html.Div('Year End', style={'text-align': 'center'}),
+                html.Div([
+                    html.Div([
+                        html.Div([
+                            html.Div('{}'.format(sorted_annual_min_all.index[y].year), style={'text-align': 'center'}) for y in range(len(sorted_annual_min_all))
+                        ],
+                            className='four columns'
+                        ),
+                        html.Div([
+                            html.Div('{:,.0f}'.format(sorted_annual_min_all.iloc[y,3]), style={'text-align': 'center'}) for y in range(len(sorted_annual_min_all))
+                        ],
+                            className='eight columns'
+                        ),  
+                    ],
+                        className='row'
+                    ),
+                ],
+                    className='round1'
+                ),      
+            ],
+                className='round1'
+            )
+
+@app.callback(
     Output('rankings', 'children'),
     [Input('selected-data', 'children')])
 def display_stats(value):
@@ -212,6 +250,11 @@ def display_stats(value):
                 ),
                 html.Div([
                     html.Div(id='annual-min-table')
+                ],
+                    className='two columns'
+                ),
+                html.Div([
+                    html.Div(id='year-end-table')
                 ],
                     className='two columns'
                 ),
