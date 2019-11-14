@@ -421,14 +421,9 @@ def lake_graph(lake, data):
     Input('annual-max', 'children'),
     Input('annual-min', 'children')])
 def lake_graph(ye_data, max_data, min_data):
-    ye_data = pd.read_json(ye_data)
+    year_end = pd.read_json(ye_data)
     max_data = pd.read_json(max_data)
     min_data = pd.read_json(min_data)
-    print(max_data)
-
-    year_end = ye_data
-    max_data = max_data
-    min_data = min_data
 
     traces = []
 
@@ -448,7 +443,7 @@ def lake_graph(ye_data, max_data, min_data):
         
     layout = go.Layout(
         height = 500,
-        title = 'Year End ',
+        title = year_end.iloc[0,0],
         yaxis = {'title':'Volume (AF)'},
     )
     return {'data': traces, 'layout': layout}
