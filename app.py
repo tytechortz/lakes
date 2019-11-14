@@ -16,11 +16,39 @@ def get_layout():
     return html.Div(
         [
             html.Div([
-                html.H2(
-                    'Colorado River Reservoir Levels',
+                html.H4('Colorado River Reservoir Levels',
                     className='twelve columns',
                     style={'text-align': 'center'}
                 ),
+            ],
+                className='row'
+            ),
+            html.Div([
+                html.Div([
+                    html.Div([
+                        html.Div('Select Reservoir', style={'text-align': 'center'}),
+                        dcc.Dropdown(
+                        id='lake',
+                        options=[
+                            {'label': 'Powell', 'value': 'lakepowell'},
+                            {'label': 'Mead', 'value': 'hdmlc'},
+                            {'label': 'Flaming Gorge', 'value': 'flaminggorge'},
+                            {'label': 'Navajo', 'value': 'navajo'},
+                            {'label': 'Blue Mesa', 'value': 'bluemesa'},
+                        ],
+                        value='lakepowell'
+                        ),
+                    ],
+                        className='pretty_container'
+                    ),
+                ],
+                    className='three columns'
+                ),
+            #     html.Div([
+                    
+            #     ],
+            #         className='three columns'
+            #     ), 
             ],
                 className='row'
             ),
@@ -63,25 +91,7 @@ def get_layout():
             ],
                 className='row'
             ),
-            html.Div([
-                html.Div([
-                    dcc.Dropdown(
-                        id='lake',
-                        options=[
-                            {'label': 'Powell', 'value': 'lakepowell'},
-                            {'label': 'Mead', 'value': 'hdmlc'},
-                            {'label': 'Flaming Gorge', 'value': 'flaminggorge'},
-                            {'label': 'Navajo', 'value': 'navajo'},
-                            {'label': 'Blue Mesa', 'value': 'bluemesa'},
-                        ],
-                        value='lakepowell'
-                    ),
-                ],
-                    className='three columns'
-                ), 
-            ],
-                className='row'
-            ),
+            
             html.Div([
                 html.P(
                     '',
@@ -409,7 +419,7 @@ def lake_graph(lake, data):
         )),
 
     layout = go.Layout(
-        height = 500,
+        height =375,
         title = data['Site'][0],
         yaxis = {'title':'Volume (AF)'},
     )
@@ -442,7 +452,7 @@ def lake_graph(ye_data, max_data, min_data):
         x += 1
         
     layout = go.Layout(
-        height = 500,
+        height = 375,
         title = year_end.iloc[0,0],
         yaxis = {'title':'Volume (AF)'},
     )
