@@ -244,7 +244,7 @@ def year_end_table(data):
     data = pd.read_json(data)
     # print(data)
     # print(data.index[0].year)
-    sorted_year_end = data.sort_values(by='Value', axis=0, ascending=False)
+    sorted_year_end = data.sort_values(by='Value', axis=0, ascending=True)
    
     return html.Div([
                 html.Div('Year End', style={'text-align': 'center'}),
@@ -411,6 +411,81 @@ def lake_graph(lake, data):
     layout = go.Layout(
         height = 500,
         title = data['Site'][0],
+        yaxis = {'title':'Volume (AF)'},
+    )
+    return {'data': traces, 'layout': layout}
+
+@app.callback(
+    Output('annual-bars', 'figure'),
+    [Input('sorted-year-end', 'children'),
+    Input('annual-max', 'children'),
+    Input('annual-min', 'children')])
+def lake_graph(ye_data, max_data, min_data):
+    ye_data = pd.read_json(ye_data)
+    max_data = pd.read_json(max_data)
+    min_data = pd.read_json(min_data)
+    print(max_data)
+
+    year_end = ye_data
+    max_data = max_data
+    min_data = min_data
+
+    traces = []
+
+    trace_data = [year_end, max_data, min_data]
+
+    for i in trace_data:
+        traces.append(
+            go.Bar(
+                x=i.index,
+                y=i['Value'],
+                name=i.iloc[0,0]
+            )
+        )
+        
+    # data['Date'] = pd.to_datetime(data['Date'])
+    # data.set_index(['Date'], inplace=True)
+    # trace1 = go.Bar(
+    #     x=year_end.index,
+    #     y=year_end['Value']
+    # )
+    # data = [
+    #     go.Bar(
+    #         x=data.index,
+    #         y=data['Value']
+    #     )
+    # ]
+  
+    # traces = []
+
+    # if lake == 'hdmlc':
+    #     for column in data.columns[3:]:
+    #         traces.append(go.Scatter(
+    #             y = data[column],
+    #             x = data.index,
+    #             name = column
+    #         ))
+    # elif lake == 'lakepowell':
+    #     traces.append(go.Scatter(
+    #         y = data['Value'],
+    #         x = data.index,
+    #         name='Water Level'
+    #     )),
+    #     traces.append(go.Scatter(
+    #         y = data['power level'],
+    #         x = data.index,
+    #         name = 'Power level'
+    #     )),
+    # else:
+    #     traces.append(go.Scatter(
+    #         y = data['Value'],
+    #         x = data.index,
+    #         name='Water Level'
+    #     )),
+
+    layout = go.Layout(
+        height = 500,
+        title = 'Year End ',
         yaxis = {'title':'Volume (AF)'},
     )
     return {'data': traces, 'layout': layout}
