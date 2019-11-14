@@ -432,57 +432,20 @@ def lake_graph(ye_data, max_data, min_data):
 
     traces = []
 
-    trace_data = [year_end, max_data, min_data]
+    trace_data = [max_data, min_data, year_end]
+    titles = ['Max', 'Min', 'Year End']
 
+    x = 0
     for i in trace_data:
         traces.append(
             go.Bar(
                 x=i.index,
                 y=i['Value'],
-                name=i.iloc[0,0]
+                name=titles[x]
             )
         )
+        x += 1
         
-    # data['Date'] = pd.to_datetime(data['Date'])
-    # data.set_index(['Date'], inplace=True)
-    # trace1 = go.Bar(
-    #     x=year_end.index,
-    #     y=year_end['Value']
-    # )
-    # data = [
-    #     go.Bar(
-    #         x=data.index,
-    #         y=data['Value']
-    #     )
-    # ]
-  
-    # traces = []
-
-    # if lake == 'hdmlc':
-    #     for column in data.columns[3:]:
-    #         traces.append(go.Scatter(
-    #             y = data[column],
-    #             x = data.index,
-    #             name = column
-    #         ))
-    # elif lake == 'lakepowell':
-    #     traces.append(go.Scatter(
-    #         y = data['Value'],
-    #         x = data.index,
-    #         name='Water Level'
-    #     )),
-    #     traces.append(go.Scatter(
-    #         y = data['power level'],
-    #         x = data.index,
-    #         name = 'Power level'
-    #     )),
-    # else:
-    #     traces.append(go.Scatter(
-    #         y = data['Value'],
-    #         x = data.index,
-    #         name='Water Level'
-    #     )),
-
     layout = go.Layout(
         height = 500,
         title = 'Year End ',
