@@ -32,6 +32,7 @@ def get_layout():
                         options=[
                             {'label': 'Powell', 'value': 'lakepowell'},
                             {'label': 'Mead', 'value': 'hdmlc'},
+                            {'label': 'Mead + Powell', 'value': 'combo'},
                             {'label': 'Flaming Gorge', 'value': 'flaminggorge'},
                             {'label': 'Navajo', 'value': 'navajo'},
                             {'label': 'Blue Mesa', 'value': 'bluemesa'},
@@ -44,11 +45,6 @@ def get_layout():
                 ],
                     className='three columns'
                 ),
-            #     html.Div([
-                    
-            #     ],
-            #         className='three columns'
-            #     ), 
             ],
                 className='row'
             ),
@@ -419,7 +415,7 @@ def lake_graph(lake, data):
         )),
 
     layout = go.Layout(
-        height =375,
+        height =400,
         title = data['Site'][0],
         yaxis = {'title':'Volume (AF)'},
     )
@@ -452,8 +448,8 @@ def lake_graph(ye_data, max_data, min_data):
         x += 1
         
     layout = go.Layout(
-        height = 375,
-        title = year_end.iloc[0,0],
+        height = 400,
+        title = '{}, 2000-Present'.format(year_end.iloc[0,0]),
         yaxis = {'title':'Volume (AF)'},
     )
     return {'data': traces, 'layout': layout}
