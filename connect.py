@@ -20,7 +20,8 @@ try:
         print("successfully recived connection from connection pool ")
         powell_cursor = powell_connection.cursor()
         powell_cursor.execute("SELECT * FROM lake_powell")
-        powell = powell_cursor.fetchall()
+        # powell = powell_cursor.fetchall()
+        powell_latest = powell_cursor.fetchone()
         powell_cursor.close()
 
         flaminggorge_cursor = flaminggorge_connection.cursor()
@@ -39,3 +40,4 @@ finally:
     if (postgreSQL_pool):
         postgreSQL_pool.closeall
     print("PostgreSQL connection pool is closed")
+
