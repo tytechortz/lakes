@@ -20,6 +20,7 @@ def get_layout():
                     className='twelve columns',
                     style={'text-align': 'center'}
                 ),
+                html.Button('Update Data', id='data-button'),
             ],
                 className='row'
             ),
