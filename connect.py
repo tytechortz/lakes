@@ -13,16 +13,23 @@ try:
 
 # Use getconn() to Get Connection from connection pool
     powell_connection  = postgreSQL_pool.getconn()
+    powell_latest_connection = postgreSQL_pool.getconn()
     mead_connection = postgreSQL_pool.getconn()
     flaminggorge_connection = postgreSQL_pool.getconn()
+
 
     if(powell_connection):
         print("successfully recived connection from connection pool ")
         powell_cursor = powell_connection.cursor()
         powell_cursor.execute("SELECT * FROM lake_powell")
-        # powell = powell_cursor.fetchall()
-        powell_latest = powell_cursor.fetchone()
+        powell = powell_cursor.fetchall()
         powell_cursor.close()
+
+        powell_latest_cursor = powell_latest_connection.cursor()
+        powell_latest_cursor.execute("SELECT * FROM lake_powell")
+        powell_latest = powell_latest_cursor.fetchone()
+        powell_latest_cursor.close()
+
 
         flaminggorge_cursor = flaminggorge_connection.cursor()
         flaminggorge_cursor.execute("SELECT * FROM flaming_gorge")

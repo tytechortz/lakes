@@ -7,12 +7,13 @@ import pandas as pd
 import time
 from datetime import datetime
 from sqlalchemy import create_engine
-from connect import flaminggorge, powell_latest
+from connect import flaminggorge, powell_latest, powell
 
 
 # powell_data = pd.DataFrame(powell)
 # print(powell_data)
 print(powell_latest)
+print(powell_latest[4])
 
 
 def get_layout():
