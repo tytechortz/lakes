@@ -6,6 +6,8 @@ from dash.dependencies import Input, Output, State
 import pandas as pd
 import time
 from datetime import datetime
+from sqlalchemy import create_engine
+from connect import powell, flaminggorge
 
 
 today = time.strftime("%Y-%m-%d")
@@ -127,12 +129,31 @@ def get_layout():
             html.Div(id='sorted-year-end', style={'display': 'none'}),
             html.Div(id='annual-max', style={'display': 'none'}),
             html.Div(id='annual-min', style={'display': 'none'}),
+            html.Div(id='output-data-button', style={'display': 'none'}),
         ]
     )
 
 app = dash.Dash(__name__)
 app.layout = get_layout
 app.config['suppress_callback_exceptions']=True
+
+@app.callback(Output('output-data-button', 'children'),
+             [Input('data-button', 'n_clicks')])
+def update_data(n_clicks):
+    print(n_clicks)
+    data = pd.read_csv('https://water.usbr.gov/api/web/app.php/api/series?sites=flaminggorge&parameters=Day.Inst.ReservoirStorage.af&start=1850-01-01&end=2019-11-02&format=csv', skiprows=4)
+
+    print(data)
+
+    # most_recent_data_date = last_day - timedelta(days=1)
+    # mrd = most_recent_data_date.strftime("%Y-%m-%d")
+
+
+    # print(most_recent_data_date)
+    engine = create_engine('postgresql://postgres:1234@localhost:5432/lakes')
+    data.to_sql('flaming_gorge', engine, if_exists='append')
+
+    return "Data Updated"
 
 @app.callback(
     Output('selected-data', 'children'),
@@ -152,6 +173,7 @@ def clean_data(lake):
         df['power level'] = 6124000
     chopped_df = df[df.Value != 0]
     # print(chopped_df)
+    print(chopped_df)
 
     return chopped_df.to_json()
 
