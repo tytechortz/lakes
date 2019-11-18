@@ -13,7 +13,7 @@ from connect import flaminggorge, powell_latest, powell
 # powell_data = pd.DataFrame(powell)
 # print(powell_data)
 print(powell_latest)
-print(powell_latest[4])
+print(powell_latest[4][:11])
 
 
 def get_layout():
