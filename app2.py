@@ -8,9 +8,9 @@ import time
 from datetime import datetime
 from sqlalchemy import create_engine
 from connect import flaminggorge, powell
-from data_load import powell_data
+# from data_load import powell_data
 
-print(powell_data)
+# print(powell_data)
 
 def get_layout():
     return html.Div([
