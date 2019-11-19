@@ -5,19 +5,12 @@ import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 import pandas as pd
 import time
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from sqlalchemy import create_engine
 from connect import flaminggorge, powell_latest, powell
-# from data_load import powell_data
+from data_load import ld
 
-# print(powell)
-
-df_powell = pd.DataFrame(powell)
-print(df_powell)
-df_powell[4] = pd.to_datetime(df_powell[4])
-print(df_powell)
-df_powell = df_powell.set_index([4])
-print(df_powell)
+# print(ld)
 
 def get_layout():
     return html.Div([
