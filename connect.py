@@ -30,7 +30,6 @@ try:
         powell_latest = powell_latest_cursor.fetchone()
         powell_latest_cursor.close()
 
-
         flaminggorge_cursor = flaminggorge_connection.cursor()
         flaminggorge_cursor.execute("SELECT * FROM flaming_gorge")
         flaminggorge = flaminggorge_cursor.fetchall()
