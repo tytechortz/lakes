@@ -1,5 +1,12 @@
 import psycopg2
 from psycopg2 import pool
+import pandas as pd
+import time
+from datetime import datetime, date, timedelta
+from sqlalchemy import create_engine
+
+
+today = time.strftime("%Y-%m-%d")
 
 try:
 
@@ -46,4 +53,27 @@ finally:
     if (postgreSQL_pool):
         postgreSQL_pool.closeall
     print("PostgreSQL connection pool is closed")
+
+df_powell = pd.DataFrame(powell)
+df_powell[4] = pd.to_datetime(df_powell[4])
+dfp = df_powell.set_index([4])
+sorted_powell = dfp.sort_index()
+last_day = sorted_powell.index[-1] + timedelta(days=1)
+ld = last_day.strftime("%Y-%m-%d")
+
+def update_data():
+    if ld < today:
+        data = pd.read_csv('https://water.usbr.gov/api/web/app.php/api/series?sites=lakepowell&parameters=Day.Inst.ReservoirStorage.af&start=' + ld + '&end=' + today + '&format=csv', skiprows=4)
+        # print(data)
+        
+        engine = create_engine('postgresql://postgres:1234@localhost:5432/lakes')
+        con = engine.connect()
+
+        data.to_sql('lake_powell', engine, if_exists='append')
+
+        con.close()
+
+        return None   
+
+update_data()
 
