@@ -11,7 +11,6 @@ from connect import flaminggorge, powell_latest, powell
 # from data_load import ld
 
 
-
 def get_layout():
     return html.Div([
         html.Div([
@@ -94,17 +93,60 @@ app = dash.Dash(__name__)
 app.layout = get_layout
 app.config['suppress_callback_exceptions']=True
 
+@app.callback(
+    [Output('current-volume', 'children'),
+    Output('site', 'children'),
+    Output('cvd', 'children')],
+    [Input('lake', 'value'),
+    Input('selected-data', 'children')])
+def get_current_volume(lake, data):
+    data = pd.read_json(data)
+    # print(data)
+    data['Date'] = pd.to_datetime(data['Date'])
+    data.set_index(['Date'], inplace=True)
+    site = data.iloc[0, 0]
+    # print(data.iloc[0,3])
+    # print(data.iloc[1,3])
+    if data.iloc[0,3] == 0:
+        current_volume = data.iloc[1,3]
+        current_volume_date = data.index[1]
+    else:
+        current_volume = data.iloc[0,3]
+        current_volume_date = data.index[0]
+    cvd = str(current_volume_date)
+    print(type(cvd))
+
+    return current_volume, site, cvd
+
+@app.callback(
+    Output('stats', 'children'),
+    [Input('lake', 'value'),
+    Input('site', 'children'),
+    Input('current-volume', 'children'),
+    Input('cvd', 'children')])
+def produce_stats(lake, site, data, date ):
+    fill_pct = data / capacities[site]
+    date = date[0:11]
+    # print(date)
+    # print(data)
+    
+    return html.Div([
+                html.Div('{} Volume'.format(date), style={'text-align':'center'}),
+                html.Div('{:,.0f}'.format(data), style={'text-align':'center'}),
+                html.Div('Percent Full', style={'text-align':'center'}),
+                html.Div('{0:.0%}'.format(fill_pct), style={'text-align':'center'}),
+            ],
+                className='round1'
+            ),
+
+
 
 @app.callback(
     Output('selected-data', 'children'),
     [Input('lake', 'value')])
 def clean_data(lake):
     df = pd.DataFrame(powell)
-    print(df)
-    # powell_data[4] = pd.to_datetime(powell_data[4])
-    # powell_data = powell_data.set_index([4])
-    # dfp = powell_data.sort_index()
-    # print(dfp)
+
     if lake == 'hdmlc':
         df['1090'] = 10857000
         df['1075'] = 9601000
@@ -116,9 +158,6 @@ def clean_data(lake):
         df['1025'] = 5981000
     elif lake == 'lakepowell':
         df['power level'] = 6124000
-    # chopped_df = dfp[dfp.Value != 0]
-    # print(chopped_df)
-    print(df)
 
     return df.to_json()
 
@@ -128,41 +167,41 @@ def clean_data(lake):
     Input('selected-data', 'children')])
 def lake_graph(lake, data):
     data = pd.read_json(data)
-    print(data)
     data.iloc[:,4] = pd.to_datetime(data.iloc[:,4])
     data.set_index(data.iloc[:,4], inplace=True)
     print(data)
-  
+    df = data.sort_index()
+    print(df)
     traces = []
 
     if lake == 'hdmlc':
         for column in data.columns[3:]:
             traces.append(go.Scatter(
-                y = data[column],
-                x = data.index,
+                y = df[column],
+                x = df.index,
                 name = column
             ))
     elif lake == 'lakepowell':
         traces.append(go.Scatter(
-            y = data['5'],
-            x = data.index,
+            y = df['5'],
+            x = df.index,
             name='Water Level'
         )),
         traces.append(go.Scatter(
-            y = data['power level'],
-            x = data.index,
+            y = df['power level'],
+            x = df.index,
             name = 'Power level'
         )),
     else:
         traces.append(go.Scatter(
-            y = data['Value'],
-            x = data.index,
+            y = df['Value'],
+            x = df.index,
             name='Water Level'
         )),
 
     layout = go.Layout(
         height =400,
-        title = data['1'][0],
+        title = df['1'][0],
         yaxis = {'title':'Volume (AF)'},
     )
     return {'data': traces, 'layout': layout}
