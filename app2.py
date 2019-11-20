@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 from connect import flaminggorge, powell_latest, powell
 # from data_load import ld
 
+capacities = {'LAKE POWELL': 24322000, 'Lake Mead': 26134000, 'FLAMING GORGE RESERVOIR': 3788700, 'NAVAJO RESERVOIR': 1708600, 'BLUE MESA RESERVOIR': 940800 }
 
 def get_layout():
     return html.Div([
@@ -86,6 +87,9 @@ def get_layout():
                 className='row'
             ),
             html.Div(id='selected-data', style={'display': 'none'}),
+            html.Div(id='current-volume', style={'display': 'none'}),
+            html.Div(id='site', style={'display': 'none'}),
+            html.Div(id='cvd', style={'display': 'none'}),
     ])
 
 
@@ -101,17 +105,19 @@ app.config['suppress_callback_exceptions']=True
     Input('selected-data', 'children')])
 def get_current_volume(lake, data):
     data = pd.read_json(data)
-    # print(data)
-    data['Date'] = pd.to_datetime(data['Date'])
-    data.set_index(['Date'], inplace=True)
-    site = data.iloc[0, 0]
+    print(data.columns)
+    data['4'] = pd.to_datetime(data['4'])
+    print(data)
+    data.set_index(['4'], inplace=True)
+    print(data)
+    site = data.iloc[0, 1]
     # print(data.iloc[0,3])
     # print(data.iloc[1,3])
     if data.iloc[0,3] == 0:
-        current_volume = data.iloc[1,3]
+        current_volume = data.iloc[1,4]
         current_volume_date = data.index[1]
     else:
-        current_volume = data.iloc[0,3]
+        current_volume = data.iloc[0,4]
         current_volume_date = data.index[0]
     cvd = str(current_volume_date)
     print(type(cvd))
@@ -125,6 +131,7 @@ def get_current_volume(lake, data):
     Input('current-volume', 'children'),
     Input('cvd', 'children')])
 def produce_stats(lake, site, data, date ):
+    print(data)
     fill_pct = data / capacities[site]
     date = date[0:11]
     # print(date)
@@ -169,9 +176,8 @@ def lake_graph(lake, data):
     data = pd.read_json(data)
     data.iloc[:,4] = pd.to_datetime(data.iloc[:,4])
     data.set_index(data.iloc[:,4], inplace=True)
-    print(data)
     df = data.sort_index()
-    print(df)
+
     traces = []
 
     if lake == 'hdmlc':
