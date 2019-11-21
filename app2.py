@@ -105,22 +105,16 @@ app.config['suppress_callback_exceptions']=True
     Input('selected-data', 'children')])
 def get_current_volume(lake, data):
     data = pd.read_json(data)
-    print(data.columns)
+ 
     data['4'] = pd.to_datetime(data['4'])
-    print(data)
+
     data.set_index(['4'], inplace=True)
-    print(data)
+    data = data.sort_index()
+ 
     site = data.iloc[0, 1]
-    # print(data.iloc[0,3])
-    # print(data.iloc[1,3])
-    if data.iloc[0,3] == 0:
-        current_volume = data.iloc[1,4]
-        current_volume_date = data.index[1]
-    else:
-        current_volume = data.iloc[0,4]
-        current_volume_date = data.index[0]
+    current_volume = data.iloc[-1,4]
+    current_volume_date = data.index[-1]
     cvd = str(current_volume_date)
-    print(type(cvd))
 
     return current_volume, site, cvd
 
@@ -131,11 +125,8 @@ def get_current_volume(lake, data):
     Input('current-volume', 'children'),
     Input('cvd', 'children')])
 def produce_stats(lake, site, data, date ):
-    print(data)
     fill_pct = data / capacities[site]
     date = date[0:11]
-    # print(date)
-    # print(data)
     
     return html.Div([
                 html.Div('{} Volume'.format(date), style={'text-align':'center'}),
@@ -165,8 +156,8 @@ def clean_data(lake):
         df['1025'] = 5981000
     elif lake == 'lakepowell':
         df['power level'] = 6124000
-
-    return df.to_json()
+    chopped_df = df[df[5] != 0]
+    return chopped_df.to_json()
 
 @app.callback(
     Output('lake-levels', 'figure'),
